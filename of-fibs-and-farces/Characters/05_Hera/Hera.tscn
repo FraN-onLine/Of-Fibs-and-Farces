@@ -1,0 +1,66 @@
+[gd_scene format=3 uid="uid://b24eg781g0iyv"]
+
+[ext_resource type="Script" uid="uid://b11ug1v7u0fb5" path="res://Hera.gd" id="1_2rsrn"]
+[ext_resource type="Texture2D" uid="uid://ca7j5o2425u6d" path="res://Assets/Characters/Hera/Hera-Sheet.png" id="2_sa3bd"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rvygx"]
+atlas = ExtResource("2_sa3bd")
+region = Rect2(0, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yvos8"]
+atlas = ExtResource("2_sa3bd")
+region = Rect2(256, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gf58r"]
+atlas = ExtResource("2_sa3bd")
+region = Rect2(512, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vv1ks"]
+atlas = ExtResource("2_sa3bd")
+region = Rect2(768, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bunxr"]
+atlas = ExtResource("2_sa3bd")
+region = Rect2(1024, 0, 256, 256)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_qwc0f"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rvygx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yvos8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gf58r")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vv1ks")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bunxr")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 8.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_qwc0f"]
+size = Vector2(20, 54)
+
+[node name="CharacterBody2D" type="CharacterBody2D" unique_id=1002390888]
+script = ExtResource("1_2rsrn")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="." unique_id=484078444]
+sprite_frames = SubResource("SpriteFrames_qwc0f")
+autoplay = "default"
+frame_progress = 0.4814868
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=251077344]
+position = Vector2(0, 5)
+shape = SubResource("RectangleShape2D_qwc0f")
+
+[node name="SFX" type="AudioStreamPlayer2D" parent="." unique_id=134095640]
+
+[node name="Voice" type="AudioStreamPlayer2D" parent="." unique_id=168916815]

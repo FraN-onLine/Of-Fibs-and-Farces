@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="CharacterData" format=3 uid="uid://c4qg3fcojx4rh"]
+
+[ext_resource type="Script" uid="uid://b2ar7vl1h6b7h" path="res://Characters/character_data.gd" id="1_tof5v"]
+
+[resource]
+script = ExtResource("1_tof5v")
+Name = "Hera"
+Element = "Wind"
+Role = "Applicator"
+metadata/_custom_type_script = "uid://b2ar7vl1h6b7h"
