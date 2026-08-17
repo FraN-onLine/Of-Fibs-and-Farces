@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b11ug1v7u0fb5" path="res://Hera.gd" id="1_2rsrn"]
 [ext_resource type="Texture2D" uid="uid://ca7j5o2425u6d" path="res://Assets/Characters/Hera/Hera-Sheet.png" id="2_sa3bd"]
+[ext_resource type="Resource" uid="uid://c4qg3fcojx4rh" path="res://Characters/05_Hera/Hera.tres" id="3_h4era"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_rvygx"]
 atlas = ExtResource("2_sa3bd")
@@ -51,6 +52,7 @@ size = Vector2(20, 54)
 
 [node name="CharacterBody2D" type="CharacterBody2D" unique_id=1002390888]
 script = ExtResource("1_2rsrn")
+character_data = ExtResource("3_h4era")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="." unique_id=484078444]
 sprite_frames = SubResource("SpriteFrames_qwc0f")
