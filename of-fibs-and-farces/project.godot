@@ -14,6 +14,10 @@ config/name="Of Fibs and Farces"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[autoload]
+
+PartyState="*res://party_state.gd"
+
 [display]
 
 window/size/viewport_width=1920

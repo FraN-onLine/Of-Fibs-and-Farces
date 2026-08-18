@@ -5,6 +5,7 @@ class_name Character
 ## Handles movement (run / jump / dash), combat (basic attack + combo),
 ## skills (Skill 1, Skill 2, Ultimate), and death.
 ## All data-driven values come from the assigned CharacterData resource.
+## Runtime HP and cooldowns sync with the global PartyState autoload.
 
 # ==================================================================
 # Movement constants
@@ -33,6 +34,7 @@ const DEFAULT_SKILL_COOLDOWN := 5.0
 # Exports & node references
 # ==================================================================
 @export var character_data: CharacterData
+@export var party_slot: int = -1        # -1 = not in a party slot
 
 @onready var sprite: AnimatedSprite2D = $Sprite
 @onready var audio_sfx: AudioStreamPlayer2D = $SFX
@@ -85,6 +87,7 @@ var ultimate_cooldown_left: float = 0.0
 
 func _ready() -> void:
 	load_character_data()
+	register_with_party_state()
 
 
 func _physics_process(delta: float) -> void:
@@ -140,6 +143,32 @@ func _physics_process(delta: float) -> void:
 		ultimate()
 
 	move_and_slide()
+
+
+# ==================================================================
+# Party state integration
+# ==================================================================
+
+## Register this character with the global PartyState autoload.
+## If party_slot is set, HP and cooldowns sync with the global state.
+func register_with_party_state() -> void:
+	if party_slot < 0 or not Engine.has_singleton("PartyState"):
+		return
+	var ps := Engine.get_singleton("PartyState")
+	if ps == null:
+		return
+
+	# Sync HP from global state if this character is already in a slot
+	if ps.is_slot_occupied(party_slot):
+		hp = ps.get_hp(party_slot)
+		max_hp = ps.get_max_hp(party_slot)
+		is_dead = ps.is_slot_dead(party_slot)
+		skill1_cooldown_left = ps.get_cooldown_left(party_slot, &"skill1")
+		skill2_cooldown_left = ps.get_cooldown_left(party_slot, &"skill2")
+		ultimate_cooldown_left = ps.get_cooldown_left(party_slot, &"ultimate")
+	else:
+		# Register this character into the slot
+		ps.set_slot(party_slot, character_data)
 
 
 # ==================================================================
@@ -237,6 +266,7 @@ func skill_1() -> void:
 	if is_dead or skill1_cooldown_left > 0.0:
 		return
 	skill1_cooldown_left = skill1_cooldown
+	_sync_cooldown(&"skill1", skill1_cooldown_left)
 	play_random(_clips(character_data.skill1_audio), audio_voice)
 	play_random(_clips(character_data.skill1_effect_audio), audio_sfx)
 
@@ -245,6 +275,7 @@ func skill_2() -> void:
 	if is_dead or skill2_cooldown_left > 0.0:
 		return
 	skill2_cooldown_left = skill2_cooldown
+	_sync_cooldown(&"skill2", skill2_cooldown_left)
 	play_random(_clips(character_data.skill2_audio), audio_voice)
 	play_random(_clips(character_data.skill2_effect_audio), audio_sfx)
 
@@ -253,6 +284,7 @@ func ultimate() -> void:
 	if is_dead or ultimate_cooldown_left > 0.0:
 		return
 	ultimate_cooldown_left = ultimate_cooldown
+	_sync_cooldown(&"ultimate", ultimate_cooldown_left)
 	play_random(_clips(character_data.skill3_audio), audio_voice)
 	play_random(_clips(character_data.ultimate_effect_audio), audio_sfx)
 
@@ -265,6 +297,7 @@ func take_damage(amount: int, type: String = "", element: String = "") -> void:
 	if is_dead or amount <= 0:
 		return
 	hp = maxi(hp - amount, 0)
+	_sync_hp()
 	play_random(_clips(character_data.hurt_audio), audio_voice)
 	if hp <= 0:
 		die()
@@ -284,6 +317,7 @@ func die() -> void:
 	if character_data:
 		character_data.is_dead = true
 		character_data.died.emit()
+	_sync_hp()
 
 
 # ==================================================================
@@ -314,7 +348,7 @@ func tick_timers(delta: float) -> void:
 		if combo_window_left <= 0.0:
 			combo_step = 0
 
-	# Skill cooldowns
+	# Skill cooldowns (local tick; global PartyState also ticks independently)
 	if skill1_cooldown_left > 0.0:
 		skill1_cooldown_left = maxf(skill1_cooldown_left - delta, 0.0)
 	if skill2_cooldown_left > 0.0:
@@ -336,6 +370,20 @@ func play_random(clips: Array, player: AudioStreamPlayer2D) -> void:
 
 func _clips(clips: Array) -> Array:
 	return clips if character_data != null else []
+
+
+func _sync_hp() -> void:
+	if party_slot >= 0 and Engine.has_singleton("PartyState"):
+		var ps := Engine.get_singleton("PartyState")
+		if ps != null and ps.is_slot_occupied(party_slot):
+			ps.set_hp(party_slot, hp)
+
+
+func _sync_cooldown(skill: StringName, duration: float) -> void:
+	if party_slot >= 0 and Engine.has_singleton("PartyState"):
+		var ps := Engine.get_singleton("PartyState")
+		if ps != null:
+			ps.start_cooldown(party_slot, skill, duration)
 
 
 # --- Convenience getters (useful for UI) ---
